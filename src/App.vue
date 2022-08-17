@@ -2,6 +2,12 @@
   <router-view/>
 </template>
 
+<script>
+import 'normalize.css'
+export default {
+}
+</script>
+
 <style lang="scss">
 html, body {
   background-color: #1BAC81;
