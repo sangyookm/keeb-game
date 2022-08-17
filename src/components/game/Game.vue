@@ -58,6 +58,7 @@ export default {
     },
     attachEvents() {
       document.addEventListener('keypress', this.globalKeyPress, false)
+      document.addEventListener('keydown', this.globalKeyDown, false)
     },
     globalKeyPress(e) {
       const {code, key, which} = e
@@ -66,10 +67,20 @@ export default {
       if (isSpace) {
         return this.processSpace()
       }
+
       if (key) {
         return this.processValidInput(e.key)
       } 
         
+    },
+    globalKeyDown(e) {
+      const {code, key, which} = e
+      const isBackspace = key === "Backspace" || code === "Backspace" || which === 8
+      if (isBackspace) {
+        e.preventDefault()
+        console.log("isBackspace")
+        return this.processBackspace()
+      }
     },
     processValidInput(key) {
       // console.log("key", key)
@@ -81,8 +92,6 @@ export default {
         1,
         `${w}${key}`.trim()
       )
-    
-      
     },
     getUserInputWordByWordIndex(wordIndex) {
       return this.inputtedWords[wordIndex] || null
@@ -96,9 +105,27 @@ export default {
 
       this.currentWordIndex += 1
       this.currentInput = ""
+    },
+    processBackspace() {
+      if (this.isStart) return
+      if (this.currentInput.length <= 0 && this.currentWordIndex >= 1) {
+        this.currentWordIndex -= 1
+        this.currentInput = this.inputtedWords[this.currentWordIndex]
+      } else {
+        this.currentInput = this.currentInput.slice(0, this.currentInput.length - 1)
+        // const w = this.inputtedWords[this.currentWordIndex] || ''
+        this.inputtedWords.splice(
+          this.currentWordIndex,
+          1,
+          this.currentInput
+        )
+      }
     }
   },
   computed: {
+    isStart() {
+      return this.currentInput.length <= 0 && this.currentWordIndex <= 0
+    },
     caretPos() {
       try {
         console.log("refs.word", this.$refs.word)

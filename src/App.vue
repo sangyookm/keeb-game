@@ -14,23 +14,15 @@ html, body {
   width: 100%;
   height: 100%;
 }
+
+*, *:after, *:before {
+  box-sizing: border-box;
+}
+
 #app {
   width: 100%;
   height: 100%;
   color: #2c3e50;
   display: flex;
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
 }
 </style>
