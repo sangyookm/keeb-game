@@ -73,9 +73,9 @@ export default {
 
 <style lang="scss" scoped>
 .word {
-  margin: 2px 5px;
-  font-size: 24px;
-  line-height: 1.35;
+  margin: var(--game-word-gap-v) var(--game-word-gap-h);
+  font-size: var(--game-font-size);
+  line-height: var(--game-line-height);
 }
 
 .word--current {
