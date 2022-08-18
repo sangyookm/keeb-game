@@ -19,16 +19,16 @@
     </div>
     <div>
       <div>
-        {{words[currentWordIndex]}}
+        <!-- {{words[currentWordIndex]}}
         <strong>
           [{{currentWordIndex}}]
-        </strong>
+        </strong> -->
       </div>
-      <div class="debug-user-input">
+      <!-- <div class="debug-user-input">
         <div v-for="w, i in inputtedWords" :key="i">
           {{w}}
         </div>
-      </div>
+      </div> -->
     </div>
     <textarea v-model="currentInput" readonly />
   </div>
@@ -63,6 +63,9 @@ export default {
     globalKeyPress(e) {
       const {code, key, which} = e
       const isSpace = code === "Space" || which === 32
+      const isEnter = code === "Enter"
+
+      if (isEnter) return
 
       if (isSpace) {
         return this.processSpace()
@@ -163,6 +166,7 @@ export default {
   width: 100%;
   max-width: 1200px;
   margin: auto;
+  color: white;
 }
 
 .words {
@@ -181,8 +185,9 @@ export default {
   top: 0;
   left: 0;
   height: calc(24px * 1.35);
-  width: 2px;
-  background: red;
+  width: 3px;
+  transform: translate3d(-2px, 0, 0);
+  background: #00de80;
   transition: 100ms;
   // animation: blink 1s infinite;
 }
@@ -201,6 +206,7 @@ textarea {
   bottom: 0;
   left: 0;
   width: 100%;
+  visibility: hidden;
 }
 
 </style>

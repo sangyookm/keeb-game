@@ -10,7 +10,7 @@ export default {
 
 <style lang="scss">
 html, body {
-  background-color: #1BAC81;
+  background-color: #0a0a0a;
   width: 100%;
   height: 100%;
 }
@@ -22,7 +22,7 @@ html, body {
 #app {
   width: 100%;
   height: 100%;
-  color: #2c3e50;
+  // color: #2c3e50;
   display: flex;
 }
 </style>

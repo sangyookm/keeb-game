@@ -36,7 +36,7 @@ export default {
 
 .letter {
   display: inline-block;
-  opacity: 0.75;
+  opacity: 0.35;
 }
 
 .letter--correct {
