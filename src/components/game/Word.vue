@@ -2,7 +2,8 @@
   <div :class="[
     `word`,
     {
-      'word--current': isCurrent
+      'word--current': isCurrent,
+      'word--wrong': !isCurrent && this.userInputForWord?.length && isWordWrong()
     }
   ]">
     <Letter 
@@ -58,6 +59,12 @@ export default {
     },
     isLetterInUserInput(i) {
       return this.userInputForWord && i <= this.userInputForWord.length - 1
+    },
+    isWordWrong() {
+      for (let i=0; i < this.userInputForWord.length; i++) {
+        if (this.userInputForWord[i] !== this.word[i]) return true
+      }
+      return false
     }
   },
   computed: {
@@ -73,6 +80,7 @@ export default {
 
 <style lang="scss" scoped>
 .word {
+  position: relative;
   margin: var(--game-word-gap-v) var(--game-word-gap-h);
   font-size: var(--game-font-size);
   line-height: var(--game-line-height);
@@ -80,5 +88,14 @@ export default {
 
 .word--current {
   background-color: rgba(white, 0.05)
+}
+.word--wrong:after {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: red;
+  content: "";
 }
 </style>
