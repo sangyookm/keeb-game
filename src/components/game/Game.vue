@@ -31,7 +31,7 @@
     <textarea v-model="currentInput" readonly />
   </div>
 
-  <div class="debug">
+  <div class="debug" v-if="debugMode">
     <div>
       currentLine: {{currentLine}}
     </div>
@@ -41,7 +41,9 @@
     <div>
       currentWordEl: {{currentWordEl}}
     </div>
-
+    <div>
+      WPM: {{wpm}}
+    </div>
   </div>
 </div>
 </template>
@@ -49,6 +51,12 @@
 <script>
 import randomWords from 'random-words'
 import Word from './Word'
+const getRandomInt = (min, max)=> {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+
 export default {
   data() {
     return {
@@ -58,6 +66,10 @@ export default {
       currentWordIndex: 0,
       currentInput: "",
       didStart: false,
+      lastInputTime: new Date().getTime(),
+      startInputTime: new Date().getTime(),
+      playSound: false,
+      debugMode: false,
       window: {
         width: window.innerWidth,
         height: window.innerHeight
@@ -70,6 +82,9 @@ export default {
   mounted() {
     this.attachEvents()
   },  
+  beforeUnmount() {
+    this.attachEvents(true)
+  },
   watch: {
     currentWordIndex(n) {
       this.currentWordEl = this.$refs.word?.[n]?.$el || null
@@ -79,9 +94,11 @@ export default {
     generateWords() {
       return randomWords(100)
     },
-    attachEvents() {
-      document.addEventListener('keypress', this.globalKeyPress, false)
-      document.addEventListener('keydown', this.globalKeyDown, false)
+    attachEvents(detach = false) {
+      const listener = detach ? 'removeEventListener' : 'addEventListener'
+      window[listener]('resize', this.onWindowResize, false)
+      document[listener]('keypress', this.globalKeyPress, false)
+      document[listener]('keydown', this.globalKeyDown, false)
     },
     globalKeyPress(e) {
       const {code, key, which} = e
@@ -91,10 +108,12 @@ export default {
       if (isEnter) return
 
       if (isSpace) {
+        this.lastInputTime = new Date().getTime()
         return this.processSpace()
       }
 
       if (key) {
+        this.lastInputTime = new Date().getTime()
         return this.processValidInput(e.key)
       } 
         
@@ -104,6 +123,7 @@ export default {
       const isBackspace = key === "Backspace" || code === "Backspace" || which === 8
       if (isBackspace) {
         e.preventDefault()
+        this.lastInputTime = new Date().getTime()
         console.log("isBackspace")
         return this.processBackspace()
       }
@@ -112,7 +132,12 @@ export default {
       // console.log("key", key)
       this.currentInput += key
 
-      if (!this.didStart) this.didStart = true
+      if (!this.didStart) {
+        this.didStart = true
+        this.startInputTime = new Date().getTime()
+        this.lastInputTime = new Date().getTime()
+      }
+      if (this.playSound) new Audio(require(`@/assets/key_${getRandomInt(1, 2)}.mp3`)).play()
       
       const w = this.inputtedWords[this.currentWordIndex] || ''
       this.inputtedWords.splice(
@@ -131,11 +156,15 @@ export default {
 
       if (curLen > curInpLen) return
 
+      if (this.playSound) new Audio(require(`@/assets/key_space_1.mp3`)).play()
+
+
       this.currentWordIndex += 1
       this.currentInput = ""
     },
     processBackspace() {
       if (this.isBeginning) return
+      if (this.playSound) new Audio(require(`@/assets/key_space_1.mp3`)).play()
       if (this.currentInput.length <= 0 && this.currentWordIndex >= 1) {
         this.currentWordIndex -= 1
         this.currentInput = this.inputtedWords[this.currentWordIndex]
@@ -149,6 +178,10 @@ export default {
         )
       }
     },
+    onWindowResize() {
+      this.window.innerWidth = window.innerWidth
+      this.window.innerHeight = window.innerHeight
+    }
   },
   computed: {
     isBeginning() {
@@ -200,6 +233,17 @@ export default {
       } catch {
         return {}
       }
+    },
+    wpm() {
+      
+      const progressedTimeInSeconds = (this.lastInputTime - this.startInputTime)/1000
+      const wpm = Math.round(this.inputtedWords.length / progressedTimeInSeconds * 60)
+      console.log({
+        inputtedWordsLen: this.inputtedWords.length,
+        progressedTimeInSeconds,
+        wpm
+      })
+      return wpm || 0
     }
   },
   components: {
