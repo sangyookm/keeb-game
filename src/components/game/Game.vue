@@ -371,7 +371,6 @@ export default {
 .words {
   display: flex;
   flex-wrap: wrap;
-  font-family: monospace;
   margin: -2px -5px;
   user-select: none;
   pointer-events: none;

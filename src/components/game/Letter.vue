@@ -37,6 +37,7 @@ export default {
 .letter {
   display: inline-block;
   opacity: 0.35;
+  font-weight: 300;
 }
 
 .letter--correct {
