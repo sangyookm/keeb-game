@@ -14,7 +14,7 @@
           {
             'caret--blink': !didStart
           }
-        ]" :style="caretPos"></div>
+        ]" :style="caretPosStyle"></div>
         <div class="words" ref="wordsCont">
           <Word 
             v-for="word, i in words"
@@ -70,6 +70,10 @@ export default {
       startInputTime: new Date().getTime(),
       playSound: false,
       debugMode: false,
+      caretPos: {
+        top: 0,
+        left: 0,
+      },
       window: {
         width: window.innerWidth,
         height: window.innerHeight
@@ -88,6 +92,9 @@ export default {
   watch: {
     currentWordIndex(n) {
       this.currentWordEl = this.$refs.word?.[n]?.$el || null
+    },
+    currentInput() {
+      this.setCaretPos()
     }
   },
   methods: {
@@ -181,6 +188,21 @@ export default {
     onWindowResize() {
       this.window.innerWidth = window.innerWidth
       this.window.innerHeight = window.innerHeight
+      this.setCaretPos()
+    },
+    setCaretPos() {
+      const wordEl = this.$refs.word?.[this.currentWordIndex]?.$el
+
+      if (!wordEl) return
+      const letterRect = wordEl?.querySelector('.letter')?.getBoundingClientRect()
+      const letterWidth = letterRect?.width || 0
+      const currentLetterIndex = this.currentInput.length
+  
+      let top = wordEl ? wordEl.offsetTop : 0
+      let left = wordEl ? wordEl.offsetLeft + (currentLetterIndex * letterWidth): 0
+
+      this.caretPos = { top, left }
+     
     }
   },
   computed: {
@@ -212,27 +234,31 @@ export default {
     scrollAmountByLine() {
       return (this.currentLine > 2) ? Math.abs(2 - this.currentLine) : 0
     },
-    caretPos() {
-      try {
-        // console.log("refs.word", this.$refs.word)
-        const wordEl = this.$refs.word?.[this.currentWordIndex]?.$el
-        const letterRect = wordEl?.querySelector('.letter')?.getBoundingClientRect()
-        const letterWidth = letterRect?.width || 0
-        // console.log("letter", wordEl?.querySelector('.letter'))
-        const currentLetterIndex = this.currentInput.length
-    
-        let top = wordEl ? wordEl.offsetTop : 0
-        let left = wordEl ? wordEl.offsetLeft + (currentLetterIndex * letterWidth): 0
-        
-        // const contEl = this.$refs.wordsCont
-        // console.log(top, left, letterRect)
-        return {
-          top: `${top}px`,
-          left: `${left}px`,
-        }
-      } catch {
-        return {}
+    caretPosStyle() {
+      return {
+        top: `${this.caretPos.top}px`,
+        left: `${this.caretPos.left}px`
       }
+      // try {
+      //   // console.log("refs.word", this.$refs.word)
+      //   const wordEl = this.$refs.word?.[this.currentWordIndex]?.$el
+      //   const letterRect = wordEl?.querySelector('.letter')?.getBoundingClientRect()
+      //   const letterWidth = letterRect?.width || 0
+      //   // console.log("letter", wordEl?.querySelector('.letter'))
+      //   const currentLetterIndex = this.currentInput.length
+    
+      //   let top = wordEl ? wordEl.offsetTop : 0
+      //   let left = wordEl ? wordEl.offsetLeft + (currentLetterIndex * letterWidth): 0
+        
+      //   // const contEl = this.$refs.wordsCont
+      //   // console.log(top, left, letterRect)
+      //   return {
+      //     top: `${top}px`,
+      //     left: `${left}px`,
+      //   }
+      // } catch {
+      //   return {}
+      // }
     },
     wpm() {
       
