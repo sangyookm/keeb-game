@@ -28,7 +28,11 @@
         </div>
       </div>
     </div>
-    <textarea v-model="currentInput" readonly />
+    <input v-model="currentInput" 
+      v-on:keypress.space="processSpace" 
+      v-on:keypress="processKeyPress"
+      ref="input" 
+    />
   </div>
 
   <div class="debug" v-if="debugMode">
@@ -104,54 +108,31 @@ export default {
     attachEvents(detach = false) {
       const listener = detach ? 'removeEventListener' : 'addEventListener'
       window[listener]('resize', this.onWindowResize, false)
-      document[listener]('keypress', this.globalKeyPress, false)
+      // document[listener]('keypress', this.globalKeyPress, false)
       document[listener]('keydown', this.globalKeyDown, false)
     },
-    globalKeyPress(e) {
-      const {code, key, which} = e
-      const isSpace = code === "Space" || which === 32
-      const isEnter = code === "Enter"
-
-      if (isEnter) return
-
-      if (isSpace) {
-        this.lastInputTime = new Date().getTime()
-        return this.processSpace()
-      }
-
-      if (key) {
-        this.lastInputTime = new Date().getTime()
-        return this.processValidInput(e.key)
+    globalKeyDown() {
+      console.dir(document);
+      if (document.documentElement !== this.$refs.input) {
+        this.$refs.input.focus()
       } 
-        
     },
-    globalKeyDown(e) {
-      const {code, key, which} = e
-      const isBackspace = key === "Backspace" || code === "Backspace" || which === 8
-      if (isBackspace) {
-        e.preventDefault()
-        this.lastInputTime = new Date().getTime()
-        console.log("isBackspace")
-        return this.processBackspace()
-      }
-    },
-    processValidInput(key) {
+    processValidInput() {
+      console.log("1", getRandomInt())
       // console.log("key", key)
-      this.currentInput += key
-
-      if (!this.didStart) {
-        this.didStart = true
-        this.startInputTime = new Date().getTime()
-        this.lastInputTime = new Date().getTime()
-      }
-      if (this.playSound) new Audio(require(`@/assets/key_${getRandomInt(1, 2)}.mp3`)).play()
+      // if (!this.didStart) {
+      //   this.didStart = true
+      //   this.startInputTime = new Date().getTime()
+      //   this.lastInputTime = new Date().getTime()
+      // }
+      // if (this.playSound) new Audio(require(`@/assets/key_${getRandomInt(1, 2)}.mp3`)).play()
       
-      const w = this.inputtedWords[this.currentWordIndex] || ''
-      this.inputtedWords.splice(
-        this.currentWordIndex,
-        1,
-        `${w}${key}`.trim()
-      )
+      // const w = this.inputtedWords[this.currentWordIndex] || ''
+      // this.inputtedWords.splice(
+      //   this.currentWordIndex,
+      //   1,
+      //   // `${w}${key}`.trim()
+      // )
     },
     getUserInputWordByWordIndex(wordIndex) {
       return this.inputtedWords[wordIndex] || null
@@ -405,12 +386,16 @@ export default {
   }
 }
 
-textarea {
+input {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  visibility: hidden;
+  z-index: 9999;
+  &:focus  {
+    box-shadow: 0 0 0 2px red;
+  }
+  // visibility: hidden;
 }
 
 </style>
